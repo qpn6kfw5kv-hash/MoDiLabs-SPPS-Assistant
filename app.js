@@ -31,6 +31,8 @@ function saveFolders(data, skipWorkspace = false) {
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
 // ---- App State ----
+// ---- App State ----
+const IS_SECURE_CONTEXT = window.isSecureContext || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 let syntheses = loadSyntheses();
 let attachments = loadFiles();
 let folders = loadFolders();
@@ -46,6 +48,10 @@ let searchQuery = '';
 
 // ---- Inventory / Excel Logic ----
 async function initInventory() {
+  if (!IS_SECURE_CONTEXT) {
+    console.warn('⚠️ L\'accesso al file system richiede un contesto sicuro (HTTPS o localhost).');
+    return;
+  }
   try {
     const invHandle = await idbKeyval.get('spps-inventory-handle');
     if (invHandle && (await verifyPermission(invHandle, false))) {
@@ -1350,7 +1356,7 @@ function printSynthesis(id) {
   if (!s) return;
 
   const resin = RESINS.find(r => r.name === s.resinType) || RESINS[0];
-  const tokens = tokenizeSequence(s.sequence);
+  const tokens = tokenizeSequence(s.sequence).slice().reverse(); // Reverse for addition order (C to N)
   const resinMass = (s.scale / s.resinLoading) * 1000;
 
   // Reagent calculations
@@ -1429,7 +1435,7 @@ function printSynthesis(id) {
     <table class="print-table">
       <thead>
         <tr>
-          <th style="width: 50%">Amminoacido</th>
+          <th style="width: 50%">Amminoacido (Ordine di sintesi)</th>
           <th style="width: 20%">P.M.</th>
           <th style="width: 30%">Quantità (mg)</th>
         </tr>
