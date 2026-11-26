@@ -1,0 +1,20 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const root = fileURLToPath(new URL('../.cloud-test-deps/', import.meta.url));
+const destination = path.join(root, 'pglite');
+await mkdir(destination, { recursive: true });
+const url = 'https://registry.npmjs.org/@electric-sql/pglite/-/pglite-0.5.8.tgz';
+const expected = 'n9tsbUOhwx2epK1V0ZG9Ar4SHWUju04dhmzZXiSBXwBoleOvIfals33NAaWgagQVAL4Rbvx/Ptsu3P+pA09f6Q==';
+const response = await fetch(url);
+if (!response.ok) throw new Error('Dependency download failed: ' + response.status);
+const bytes = Buffer.from(await response.arrayBuffer());
+if (createHash('sha512').update(bytes).digest('base64') !== expected) throw new Error('Dependency integrity mismatch');
+const archive = path.join(root, 'pglite-0.5.8.tgz');
+await writeFile(archive, bytes);
+const result = spawnSync('tar', ['-xzf', archive, '-C', destination, '--strip-components=1'], { stdio: 'inherit', windowsHide: true });
+if (result.status !== 0) throw new Error('Dependency extraction failed');
+console.log('PGlite 0.5.8 ready; registry SHA-512 verified. Test-only, not shipped to the browser.');

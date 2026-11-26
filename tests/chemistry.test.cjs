@@ -1,0 +1,35 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+const context=vm.createContext({window:{isSecureContext:true,location:{hostname:'localhost'}},document:{addEventListener(){}},localStorage:{getItem(){return null;},setItem(){}},AbortSignal,console});
+for(const file of ['amino-acids.js','chemistry.js','app.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const run=code=>vm.runInContext(code,context);
+assert.equal(run("resolveAminoAcid('Aib').fmocMW"),325.36);
+assert.equal(run("resolveAminoAcid('fmoc-aib-oh').cas"),'94744-50-0');
+assert.equal(run("resolveAminoAcid('Fmoc-D-Aib-OH').status"),'unresolved');
+assert.equal(run("resolveAminoAcid('Fmoc-Phe(4-guanidino-boc2)-OH').status"),'unresolved');
+assert.equal(run("JSON.stringify(tokenizeSequence('GAibK'))"),'["G","Aib","K"]');
+assert.equal(run("JSON.stringify(tokenizeSequence('KR*CVQRC*KDFLR'))"),'["K","R","C","V","Q","R","C","K","D","F","L","R"]');
+assert.equal(run("tokenizeSequence('A(Fmoc-O2Oc-OH)(Fmoc-D-Asp(OAll)-OH)G').length"),4);
+assert.equal(run("calculateAAMass('K',3,.05,452.5)"),67.88);
+assert.equal(run("calculateAAMass('D',3,.05,395.41)"),59.31);
+assert.equal(run("calculateAAMass('Aib',3,.05,resolveAminoAcid('Aib').fmocMW)"),48.8);
+assert(run("Number.isNaN(calculatePeptideMW(['Unknown'],'amide',{Unknown:325.36}))"));
+assert(run("Number.isNaN(deriveResidueMW('C19H19NO4','Fmoc-X(unknown)-OH'))"));
+assert(Math.abs(run("deriveResidueMW('C19H19NO4','Fmoc-Aib-OH')")-85.106)<.001);
+for(const record of run('CHEMISTRY_CATALOG')){
+ assert(record.cas && record.source && record.formula);
+ assert(Math.abs(run(`deriveResidueMW('${record.formula}','${record.fmocName}')`)-record.residueMW)<.035,record.fmocName+' residue formula');
+}
+assert.equal(run("formatReagentDose({...getReagent('DIPEA'),eq:6},.05)"),'52.25 µL');
+assert.equal(run("formatReagentDose({...getReagent('DIC'),eq:3},.05)"),'23.26 µL');
+assert.equal(run("formatReagentDose({...getReagent('Oxyma'),eq:3},.05)"),'21.32 mg');
+assert.equal(run("formatReagentDose({...getReagent('HATU'),eq:2,concentrationM:.5},.05)"),'200.00 µL');
+assert.equal(run("formatReagentDose({...getReagent('DIC'),eq:0},.05)"),'Dati mancanti');
+assert.equal(run("getReagent('HOBt monoidrato').mw"),153.15);
+assert.equal(run("JSON.stringify(getCouplingReagents({activators:['DIC/Oxyma']},0).map(r=>r.name))"),'["DIC","Oxyma"]');
+assert.equal(run("JSON.stringify(getCouplingReagents({activators:['PyAOP']},0).map(r=>r.name))"),'["PyAOP","DIPEA"]');
+assert.equal(run("getCouplingReagents({couplingReagents:[{name:'HBTU',eq:2.9,mw:1}],aaReagents:{0:[]}},0).length"),0);
+assert.equal(run("getCouplingReagents({couplingReagents:[{name:'HBTU',eq:2.9,mw:1}]},0)[0].mw"),379.24);
+assert.equal(run("analyzeCyclizations('A*KAGD*G').totalMassDelta"),-18.015);
+assert.equal(run("analyzeCyclizations('KR*CVQRC*KDFLR').totalMassDelta"),-2.016);
+console.log('PASS: identity aliases, 24 protected formulas, Alloc/OAll masses, sequence parsing, individual reagent doses, solutions, legacy recipes, invalid/unknown data.');
