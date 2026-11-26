@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SPPS Lab Assistant — Gestione schede di laboratorio per sintesi peptidica in fase solida">
+  <title>SPPS Lab Assistant — Peptide Synthesis Manager</title>
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('spps-theme-preference') || 'light';
+        document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+      } catch (err) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="workspace.css?v=8">
+  <link rel="stylesheet" href="peptide-structure.css?v=1">
+  <link rel="icon" type="image/png" href="logo_transparent.png">
+  <script src="vendor/common/xlsx.full.min.js"></script>
+  <script src="vendor/common/idb-keyval.js"></script>
+</head>
+<body>
+  <div id="peptide-background" class="peptide-background" aria-hidden="true">
+    <canvas id="peptide-background-canvas"></canvas>
+  </div>
+  <div id="site-intro" class="site-intro" aria-hidden="true">
+    <div class="site-intro-mark">
+      <img src="logo_transparent.png" alt="" class="site-intro-logo">
+      <div class="site-intro-title">SPPS Lab Assistant</div>
+    </div>
+  </div>
+  <div id="app">
+    <!-- App content rendered dynamically by app.js -->
+    <div style="display:flex; align-items:center; justify-content:center; height:100vh; color:var(--text-muted)">
+      <p>Caricamento...</p>
+    </div>
+  </div>
+
+  <!-- Load scripts in order: data first, then app logic -->
+  <script src="peptide-models.js?v=2"></script>
+  <script src="peptide-background.js?v=17"></script>
+  <script src="amino-acids.js?v=8"></script>
+  <script src="chemistry.js?v=1"></script>
+  <script src="peptide-structure.js?v=1"></script>
+  <script src="ui-icons.js?v=1"></script>
+  <script src="cloud-config.js?v=1"></script>
+  <script src="supabase-client.js?v=1"></script>
+  <script src="auth-service.js?v=1"></script>
+  <script src="workspace-service.js?v=1"></script>
+  <script src="collaboration-ui.js?v=1"></script>
+  <script src="lab-ui.js?v=6"></script>
+  <script src="attachment-pdf.js?v=2"></script>
+  <script src="app.js?v=47"></script>
+</body>
+</html>

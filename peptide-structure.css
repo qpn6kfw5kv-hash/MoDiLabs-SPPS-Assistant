@@ -1,0 +1,20 @@
+.structure-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.structure-caption,.structure-metadata{font-size:12px;color:var(--text-muted);line-height:1.5}
+.structure-caption{margin-top:4px}
+.structure-tools{display:flex;gap:5px;flex-wrap:wrap}
+.structure-tool{width:34px!important;height:34px;padding:7px!important;display:inline-flex;align-items:center;justify-content:center;border-radius:6px}
+.structure-tool .ui-icon{width:18px;height:18px}
+.structure-viewport{height:420px;overflow:auto;background:#fff;overscroll-behavior:contain;outline-offset:-3px}
+.structure-viewport[hidden]{display:none}
+.structure-drawing{margin:auto;min-width:0}
+.structure-drawing svg{display:block;width:100%;height:100%}
+.structure-status{padding:24px;color:var(--text-muted);font-size:13px;line-height:1.6}
+.structure-status[hidden]{display:none}
+.structure-metadata{padding:10px 16px;border-top:1px solid var(--border-color,#ddd);overflow-wrap:anywhere}
+.peptide-structure-panel:fullscreen{background:var(--bg-primary,#fff);display:flex;flex-direction:column;padding:16px}
+.peptide-structure-panel:fullscreen .structure-viewport{flex:1;height:auto;min-height:0}
+.print-peptide-structure{break-inside:avoid;margin:16px 0;color:#000;background:#fff}
+.print-peptide-structure svg{display:block;width:100%;height:auto;max-height:220mm}
+.print-peptide-structure h4{font-size:11px;margin:0 0 8px}
+.print-peptide-structure>div{font-size:10px}
+@media(max-width:480px){.structure-viewport{height:300px}.structure-tools{gap:4px}.structure-header{padding:12px!important}}
